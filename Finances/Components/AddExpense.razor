@@ -48,7 +48,7 @@
         </div>
     </div> 
 }
-<button type="button" class="btn btn-primary" @onclick="() => _show = true">Add Expense</button>
+<button type="button" class="btn btn-primary btn-sm" @onclick="() => _show = true">Add Expense</button>
 
 
 @code {
@@ -70,7 +70,8 @@
             ExpenseItem.Name, 
             ExpenseItem.Amount, 
             ExpenseItem.Notes,
-            ExpenseItem.Weekly
+            ExpenseItem.Weekly,
+            Variable
         );
         ResetModel();
         _show = false;
@@ -90,5 +91,6 @@
         ExpenseItem.Amount = 0;
         ExpenseItem.Notes = "";
         ExpenseItem.Weekly = false;
+        ExpenseItem.Variable = Variable;
     }
 }

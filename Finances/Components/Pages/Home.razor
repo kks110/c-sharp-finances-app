@@ -1,5 +1,124 @@
 ﻿@page "/"
+@using Finances.Models
 
-<h1>Hello, world!</h1>
+<h1>Overview</h1>
 
-Welcome to your new app.
+@if (AllUsers().Count > 0)
+{
+    <ul class="list-group">
+        @foreach (var user in AllUsers())
+        {
+            <li class="list-group-item">
+                @user.Name: £@user.MonthlySalary (@SalaryPercentage(user.MonthlySalary)%)
+            </li>
+        }
+        <li class="list-group-item list-group-item-success">
+            Total Salary: £@TotalSalary()
+        </li>
+    </ul>
+}
+<br/>
+<AddExpense 
+    RefreshPage="Refresh"
+    Variable="true"
+/> 
+@if (AllStaticExpenses().Count > 0)
+{
+    <ul class="list-group">
+        <li class="list-group-item list-group-item-warning">
+            Total Static Expenses: £@TotalStaticExpenses()
+        </li>
+    </ul>
+}
+
+@if (AllVariableExpenses().Count > 0)
+{
+    <ul class="list-group">
+
+    @foreach (var expense in AllVariableExpenses())
+    {
+        <li class="list-group-item list-group-item-warning">
+            @expense.Name: £@expense.CalculateMonthlyAmount()
+            <EditExpense 
+                TItem="Expense"
+                ExpenseItem="@expense" 
+                RefreshPage="Refresh" 
+            />
+            <DeleteConfirmation  
+                TItem="Expense"
+                Item="@expense"
+                ItemDeletion="deleteExpense"
+                Message="@deleteMessage(expense)"
+            />
+        </li>
+    }
+    </ul>
+
+}
+<ul class="list-group">
+    <li class="list-group-item list-group-item-danger">
+        Total Monthly Expenses: £@TotalExpenses()
+    </li>
+</ul>
+
+@code{
+
+    private List<User> AllUsers()
+    {
+        List<User> users = App.UserRepo.GetAllUsers();
+        return users.OrderByDescending(user => user.MonthlySalary).ToList();
+    }
+
+    private int TotalSalary()
+    {
+        return AllUsers().Sum(user => user.MonthlySalary);
+    }
+    
+    private List<Expense> AllStaticExpenses()
+    {
+        return App.ExpenseRepo.GetAllStaticExpenses();
+    }
+    
+    private List<Expense> AllVariableExpenses()
+    {
+        return App.ExpenseRepo.GetAllVariableExpenses();
+    }
+    
+    private int TotalStaticExpenses()
+    {
+        return AllStaticExpenses().Sum(expense => expense.CalculateMonthlyAmount());
+    }
+    
+    private List<Expense> AllExpenses()
+    {
+        return App.ExpenseRepo.GetAllExpenses();
+    }
+    
+    private int TotalExpenses()
+    {
+        return AllExpenses().Sum(expense => expense.CalculateMonthlyAmount());
+    }
+    
+    private int SalaryPercentage(int salary)
+    {
+        float calculated = ((float)salary / TotalSalary()) * 100;
+        return (int)calculated;
+    }
+    
+    private async Task Refresh()
+    {
+        StateHasChanged();
+    }
+    
+    private void deleteExpense(Expense expense)
+    {
+        App.ExpenseRepo.DeleteExpense(expense.Id);
+    }
+    
+    private string deleteMessage(Expense expense)
+    {
+        string weeklyExtra = expense.Weekly ? "(£" + expense.Amount + " per week)" : "";
+        return $"{expense.Name}: £{expense.CalculateMonthlyAmount()} {weeklyExtra}";
+    }
+
+}

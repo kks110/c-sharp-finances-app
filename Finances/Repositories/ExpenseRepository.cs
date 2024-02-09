@@ -96,6 +96,25 @@ public class ExpenseRepository
         return new List<Expense>();
     }
     
+    public List<Expense> GetAllVariableExpenses()
+    {
+        try
+        {
+            Init();
+            var expenses = (
+                from Exp in conn.Table<Expense>()
+                where Exp.Variable == true
+                select Exp).ToList();
+            return expenses;
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = string.Format("Failed to retrieve data. {0}", ex.Message);
+        }
+
+        return new List<Expense>();
+    }
+    
     
     public Expense FindExpenseById(int id)
     {
