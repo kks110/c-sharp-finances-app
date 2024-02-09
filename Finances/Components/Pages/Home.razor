@@ -12,8 +12,10 @@
                 @user.Name: £@user.MonthlySalary (@SalaryPercentage(user.MonthlySalary)%)
             </li>
         }
-        <li class="list-group-item list-group-item-success">
+        <li class="list-group-item d-flex justify-content-between align-items-start  list-group-item-success">
             Total Salary: £@TotalSalary()
+            <span><NavLink href="/users" class="btn btn-primary btn-sm" role="button">Edit users</NavLink></span>
+
         </li>
     </ul>
 }
