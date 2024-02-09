@@ -25,7 +25,7 @@ public class MonthlyExpenseRepository
         _dbPath = dbPath;                        
     }
 
-    public int AddNewMonthlyExpense(string name, int amount, string? notes)
+    public int AddNewMonthlyExpense(string name, int amount, string? notes, bool weekly = false)
     {            
         int result = 0;
         try
@@ -40,7 +40,7 @@ public class MonthlyExpenseRepository
             if (int.IsPositive(amount) == false)
                 throw new Exception("Valid amount required");
 
-            result = conn.Insert(new MonthlyExpense { Name = name, Amount = amount, Notes = notes });
+            result = conn.Insert(new MonthlyExpense { Name = name, Amount = amount, Notes = notes, Weekly = weekly});
 
             StatusMessage = string.Format("{0} record(s) added (Name: {1})", result, name);
         }

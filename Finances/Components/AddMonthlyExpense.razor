@@ -10,23 +10,32 @@
                     <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Cancel" />
                 </div>
                 <div class="modal-body">
-                    <EditForm Model="@MonthlyExpenseModel" OnValidSubmit="@Confirm">
+                    <EditForm Model="@MonthlyExpenseItem" OnValidSubmit="@Confirm">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
 
                         <div class="form-group">
-                            <label>
-                                Name:
-                                <InputText @bind-Value="MonthlyExpenseModel!.Name" class="form-control"/>
-                            </label>
-                            <label>
-                                Amount:
-                                <InputNumber @bind-Value="MonthlyExpenseModel!.Amount" class="form-control"/>
-                            </label>
-                            <label>
-                                Notes:
-                                <InputText @bind-Value="MonthlyExpenseModel!.Notes" class="form-control"/>
-                            </label>
+                            <div class="mb-3">
+                                <label class="form-label">Name:</label>
+                                <InputText @bind-Value="MonthlyExpenseItem!.Name" class="form-control"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Amount:</label>
+                                <InputNumber @bind-Value="MonthlyExpenseItem!.Amount" class="form-control"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <InputCheckbox @bind-Value="MonthlyExpenseItem!.Weekly" class="form-check-input" type="checkbox"/>
+                                <label class="form-label">
+                                    Is this a weekly amount? (Eg. £100 a week for food)
+                                </label>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Notes:</label>
+                                <InputText @bind-Value="MonthlyExpenseItem!.Notes" class="form-control"/>
+                            </div>
                         </div>
                         <br/>
                         <button type="submit" class="btn btn-primary">Submit</button>
@@ -48,13 +57,19 @@
     
     private bool _show = false;
     
-    public MonthlyExpense? MonthlyExpenseModel { get; set; }
+    public MonthlyExpense? MonthlyExpenseItem { get; set; }
     
-    protected override void OnInitialized() => MonthlyExpenseModel ??= new();
+    protected override void OnInitialized() => MonthlyExpenseItem ??= new();
     
     private async Task Confirm()
     {
-        App.MonthlyExpenseRepo.AddNewMonthlyExpense(MonthlyExpenseModel.Name, MonthlyExpenseModel.Amount, MonthlyExpenseModel.Notes);
+        App.MonthlyExpenseRepo.AddNewMonthlyExpense(
+            MonthlyExpenseItem.Name, 
+            MonthlyExpenseItem.Amount, 
+            MonthlyExpenseItem.Notes,
+            MonthlyExpenseItem.Weekly
+        );
+        ResetModel();
         _show = false;
         await RefreshPage.InvokeAsync();
 
@@ -62,9 +77,15 @@
 
     private void Cancel()
     {
-        MonthlyExpenseModel.Name = "";
-        MonthlyExpenseModel.Amount = 0;
-        MonthlyExpenseModel.Notes = "";
+        ResetModel();
         _show = false;
+    }
+
+    private void ResetModel()
+    {
+        MonthlyExpenseItem.Name = "";
+        MonthlyExpenseItem.Amount = 0;
+        MonthlyExpenseItem.Notes = "";
+        MonthlyExpenseItem.Weekly = false;
     }
 }

@@ -14,7 +14,13 @@ public class MonthlyExpense
     
     [Range(1, int.MaxValue, ErrorMessage = "Amount must be greater than 0")]
     public int Amount { get; set; }
+    
+    public bool Weekly { get; set; }
 
     public string Notes { get; set; }
     
+    public int CalculateMonthlyAmount()
+    {
+        return Weekly ? (Amount * 52) / 12 : Amount;
+    }
 }
