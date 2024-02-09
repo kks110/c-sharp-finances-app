@@ -4,7 +4,7 @@ using SQLite;
 
 namespace Finances.Models;
 
-public class MonthlyExpense
+public class Expense
 {
     [PrimaryKey, AutoIncrement, Column("_id")]
     public int Id { get; set; }
@@ -16,6 +16,8 @@ public class MonthlyExpense
     public int Amount { get; set; }
     
     public bool Weekly { get; set; }
+    
+    public bool Variable { get; set; }
 
     public string Notes { get; set; }
     

@@ -4,14 +4,14 @@ namespace Finances;
 
 public partial class App : Application
 {
-    public static MonthlyExpenseRepository MonthlyExpenseRepo { get; private set; }
+    public static ExpenseRepository ExpenseRepo { get; private set; }
     
-    public App(MonthlyExpenseRepository repo)
+    public App(ExpenseRepository repo)
     {
         InitializeComponent();
 
         MainPage = new MainPage();
         
-        MonthlyExpenseRepo = repo;
+        ExpenseRepo = repo;
     }
 }

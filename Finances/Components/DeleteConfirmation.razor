@@ -12,7 +12,7 @@
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to delete this item?</p>
-                    <p>@MonthlyExpenseItem.Name: £@MonthlyExpenseItem.Amount</p>
+                    <p>@ExpenseItem.Name: £@ExpenseItem.CalculateMonthlyAmount() @HasWeeklyAmount()</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
@@ -26,7 +26,7 @@
 
 @code {
     [Parameter]
-    public MonthlyExpense MonthlyExpenseItem { get; set; }
+    public Expense ExpenseItem { get; set; }
 
     [Parameter]
     public EventCallback RefreshPage { get; set; }
@@ -35,7 +35,7 @@
 
     private async Task Confirm()
     {
-        App.MonthlyExpenseRepo.DeleteMonthlyExpense(MonthlyExpenseItem.Id);
+        App.ExpenseRepo.DeleteExpense(ExpenseItem.Id);
         _show = false;
         await RefreshPage.InvokeAsync();
     }
@@ -43,5 +43,15 @@
     private async Task Cancel()
     {
         _show = false;
+    }
+
+    private string HasWeeklyAmount()
+    {
+        if (ExpenseItem.Weekly)
+        {
+            return "(£" + ExpenseItem.Amount + " per week)";
+        }
+
+        return "";
     }
 }

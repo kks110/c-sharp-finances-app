@@ -1,4 +1,5 @@
 ﻿@using Finances.Models
+@typeparam TItem
 
 @if (_show)
 {
@@ -6,27 +7,27 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Expense</h5>
+                    <h5 class="modal-title">Edit Expense</h5>
                     <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Cancel" />
                 </div>
                 <div class="modal-body">
-                    <EditForm Model="@MonthlyExpenseItem" OnValidSubmit="@Confirm">
+                    <EditForm Model="@ExpenseItem" OnValidSubmit="@Confirm">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
-
+                
                         <div class="form-group">
                             <div class="mb-3">
                                 <label class="form-label">Name:</label>
-                                <InputText @bind-Value="MonthlyExpenseItem!.Name" class="form-control"/>
+                                <InputText @bind-Value="ExpenseItem!.Name" class="form-control"/>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Amount:</label>
-                                <InputNumber @bind-Value="MonthlyExpenseItem!.Amount" class="form-control"/>
+                                <InputNumber @bind-Value="ExpenseItem!.Amount" class="form-control"/>
                             </div>
 
                             <div class="mb-3">
-                                <InputCheckbox @bind-Value="MonthlyExpenseItem!.Weekly" class="form-check-input" type="checkbox"/>
+                                <InputCheckbox @bind-Value="ExpenseItem!.Weekly" class="form-check-input" type="checkbox"/>
                                 <label class="form-label">
                                     Is this a weekly amount? (Eg. £100 a week for food)
                                 </label>
@@ -34,11 +35,11 @@
                             
                             <div class="mb-3">
                                 <label class="form-label">Notes:</label>
-                                <InputText @bind-Value="MonthlyExpenseItem!.Notes" class="form-control"/>
+                                <InputText @bind-Value="ExpenseItem!.Notes" class="form-control"/>
                             </div>
                         </div>
                         <br/>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
                     </EditForm>
                 </div>
                 <div class="modal-footer">
@@ -46,46 +47,30 @@
                 </div>
             </div>
         </div>
-    </div> 
+    </div>
 }
-<button type="button" class="btn btn-primary" @onclick="() => _show = true">Add Expense</button>
+<button type="button" class="btn btn-primary" @onclick="() => _show = true">Edit</button>
 
 
 @code {
+    [Parameter]
+    public Expense ExpenseItem { get; set; }
+    
     [Parameter]
     public EventCallback RefreshPage { get; set; }
     
     private bool _show = false;
     
-    public MonthlyExpense? MonthlyExpenseItem { get; set; }
-    
-    protected override void OnInitialized() => MonthlyExpenseItem ??= new();
-    
     private async Task Confirm()
     {
-        App.MonthlyExpenseRepo.AddNewMonthlyExpense(
-            MonthlyExpenseItem.Name, 
-            MonthlyExpenseItem.Amount, 
-            MonthlyExpenseItem.Notes,
-            MonthlyExpenseItem.Weekly
-        );
-        ResetModel();
+        App.ExpenseRepo.UpdateExpense(ExpenseItem);
         _show = false;
         await RefreshPage.InvokeAsync();
-
     }
 
-    private void Cancel()
+    private async Task Cancel()
     {
-        ResetModel();
         _show = false;
-    }
-
-    private void ResetModel()
-    {
-        MonthlyExpenseItem.Name = "";
-        MonthlyExpenseItem.Amount = 0;
-        MonthlyExpenseItem.Notes = "";
-        MonthlyExpenseItem.Weekly = false;
+        await RefreshPage.InvokeAsync();
     }
 }

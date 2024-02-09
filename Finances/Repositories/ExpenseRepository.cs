@@ -3,7 +3,7 @@ using SQLite;
 
 namespace Finances.Repositories;
 
-public class MonthlyExpenseRepository
+public class ExpenseRepository
 {
     string _dbPath;
 
@@ -17,15 +17,15 @@ public class MonthlyExpenseRepository
             return;
 
         conn = new SQLiteConnection(_dbPath);
-        conn.CreateTable<MonthlyExpense>();
+        conn.CreateTable<Expense>();
     }
 
-    public MonthlyExpenseRepository(string dbPath)
+    public ExpenseRepository(string dbPath)
     {
         _dbPath = dbPath;                        
     }
 
-    public int AddNewMonthlyExpense(string name, int amount, string? notes, bool weekly = false)
+    public int AddNewExpense(string name, int amount, string? notes, bool weekly = false, bool variable = false)
     {            
         int result = 0;
         try
@@ -40,7 +40,16 @@ public class MonthlyExpenseRepository
             if (int.IsPositive(amount) == false)
                 throw new Exception("Valid amount required");
 
-            result = conn.Insert(new MonthlyExpense { Name = name, Amount = amount, Notes = notes, Weekly = weekly});
+            result = conn.Insert(
+                new Expense
+                {
+                    Name = name, 
+                    Amount = amount, 
+                    Notes = notes, 
+                    Weekly = weekly,
+                    Variable = variable
+                }
+            );
 
             StatusMessage = string.Format("{0} record(s) added (Name: {1})", result, name);
         }
@@ -53,45 +62,64 @@ public class MonthlyExpenseRepository
 
     }
 
-    public List<MonthlyExpense> GetAllMonthlyExpense()
+    public List<Expense> GetAllExpenses()
     {
         try
         {
             Init();
-            return conn.Table<MonthlyExpense>().ToList();
+            return conn.Table<Expense>().ToList();
         }
         catch (Exception ex)
         {
             StatusMessage = string.Format("Failed to retrieve data. {0}", ex.Message);
         }
 
-        return new List<MonthlyExpense>();
+        return new List<Expense>();
+    }
+    public List<Expense> GetAllStaticExpenses()
+    {
+        try
+        {
+            Init();
+            var expenses = (
+                from Exp in conn.Table<Expense>()
+                where Exp.Variable == false
+                select Exp).ToList();
+            return expenses;
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = string.Format("Failed to retrieve data. {0}", ex.Message);
+        }
+
+        return new List<Expense>();
     }
     
-    public MonthlyExpense FindMonthlyExpenseById(int id)
+    
+    public Expense FindExpenseById(int id)
     {
         try
         {
             Init();
-            var monthlyExpense = from monExp in conn.Table<MonthlyExpense>()
+            var expense = from monExp in conn.Table<Expense>()
                                  where monExp.Id == id
                                  select monExp;
-            return monthlyExpense.FirstOrDefault();
+            return expense.FirstOrDefault();
         }
         catch (Exception ex)
         {
             StatusMessage = string.Format("Failed to retrieve data. {0}", ex.Message);
         }
 
-        return new MonthlyExpense();
+        return new Expense();
     }
 
-    public int UpdateMonthlyExpense(MonthlyExpense monthlyExpense)
+    public int UpdateExpense(Expense expense)
     {
         int result = 0;
         try
         {
-            result = conn.Update(monthlyExpense);
+            result = conn.Update(expense);
             return result;
         }
         catch (Exception ex)
@@ -102,12 +130,12 @@ public class MonthlyExpenseRepository
         return result;
     }
     
-    public int DeleteMonthlyExpense(int id)
+    public int DeleteExpense(int id)
     {
         int result = 0;
         try
         {
-            result = conn.Delete<MonthlyExpense>(id);
+            result = conn.Delete<Expense>(id);
             return result;
         }
         catch (Exception ex)
