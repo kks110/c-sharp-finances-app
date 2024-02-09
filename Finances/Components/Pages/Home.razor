@@ -25,8 +25,11 @@
 @if (AllStaticExpenses().Count > 0)
 {
     <ul class="list-group">
-        <li class="list-group-item list-group-item-warning">
-            Total Static Expenses: £@TotalStaticExpenses()
+        <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-warning">
+            <div class="ms-2 me-auto">
+                Total Static Expenses: £@TotalStaticExpenses()
+            </div>
+        <span><NavLink href="/static-expenses" class="btn btn-primary btn-sm" role="button">Edit expenses</NavLink></span>
         </li>
     </ul>
 }
@@ -37,19 +40,23 @@
 
     @foreach (var expense in AllVariableExpenses())
     {
-        <li class="list-group-item list-group-item-warning">
-            @expense.Name: £@expense.CalculateMonthlyAmount()
-            <EditExpense 
-                TItem="Expense"
-                ExpenseItem="@expense" 
-                RefreshPage="Refresh" 
-            />
-            <DeleteConfirmation  
-                TItem="Expense"
-                Item="@expense"
-                ItemDeletion="deleteExpense"
-                Message="@deleteMessage(expense)"
-            />
+        <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-warning">
+            <div class="ms-2 me-auto">
+                @expense.Name: £@expense.CalculateMonthlyAmount()
+            </div>
+            <span>
+                <EditExpense 
+                   TItem="Expense"
+                   ExpenseItem="@expense" 
+                   RefreshPage="Refresh" 
+                />
+                <DeleteConfirmation  
+                   TItem="Expense"
+                   Item="@expense"
+                   ItemDeletion="deleteExpense"
+                   Message="@deleteMessage(expense)"
+                /> 
+            </span>
         </li>
     }
     </ul>
@@ -61,7 +68,32 @@
     </li>
 </ul>
 
+<br/>
+
+@if (AllUsers().Count > 0)
+{
+    <ul class="list-group">
+        @foreach (var user in AllUsers())
+        {
+            <li class="list-group-item">
+                @user.Name: £@SharedSalaryAmount(user.MonthlySalary)
+            </li>
+        }
+    </ul>
+    <button class="btn btn-primary btn-sm" @onclick="() => ForceEvenSplit = !ForceEvenSplit">
+        @if (ForceEvenSplit)
+        {
+            <span>Use percentage split</span>
+        } else
+        {
+            <span>Use event split</span>
+        }
+    </button>
+}
+
 @code{
+
+    private bool ForceEvenSplit = true;
 
     private List<User> AllUsers()
     {
@@ -72,6 +104,20 @@
     private int TotalSalary()
     {
         return AllUsers().Sum(user => user.MonthlySalary);
+    }
+
+    private int SharedSalaryAmount(int salary)
+    {
+        int leftOver = TotalSalary() - TotalExpenses();
+        float calculated;
+        if (ForceEvenSplit)
+        {
+            calculated = (float)leftOver / (float)AllUsers().Count;
+            return (int)calculated;
+        }
+        
+        calculated = ((float)leftOver * (float)SalaryPercentage(salary)) / 100;
+        return (int)calculated;
     }
     
     private List<Expense> AllStaticExpenses()
