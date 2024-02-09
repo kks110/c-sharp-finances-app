@@ -4,12 +4,9 @@
 @using Finances.Models
 <h1>Monthly Expenses</h1>
 
-
 <AddMonthlyExpense 
     RefreshPage="Refresh"
 /> 
-
-
 
 @if (AllMonthlyExpenses().Count > 0)
 {
@@ -61,7 +58,7 @@
 
 @code {
     [SupplyParameterFromForm]
-    public MonthlyExpense? MonthlyExpenseModel { get; set; }
+    private MonthlyExpense? MonthlyExpenseModel { get; set; }
     
     protected override void OnInitialized() => MonthlyExpenseModel ??= new();
     
