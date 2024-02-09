@@ -1,0 +1,47 @@
+﻿@using Finances.Models
+@typeparam TItem
+
+@if (_show)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Cancel"/>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this item?</p>
+                    <p>@MonthlyExpenseItem.Name: £@MonthlyExpenseItem.Amount</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="Confirm">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<button type="button" class="btn btn-danger" @onclick="() => _show = true">Delete</button>
+
+@code {
+    [Parameter]
+    public MonthlyExpense MonthlyExpenseItem { get; set; }
+
+    [Parameter]
+    public EventCallback RefreshPage { get; set; }
+
+    private bool _show = false;
+
+    private async Task Confirm()
+    {
+        App.MonthlyExpenseRepo.DeleteMonthlyExpense(MonthlyExpenseItem.Id);
+        _show = false;
+        await RefreshPage.InvokeAsync();
+    }
+
+    private async Task Cancel()
+    {
+        _show = false;
+    }
+}

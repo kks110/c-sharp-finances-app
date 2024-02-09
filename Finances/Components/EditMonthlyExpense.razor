@@ -1,0 +1,66 @@
+﻿@using Finances.Models
+@typeparam TItem
+
+@if (_show)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Expense</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Cancel" />
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@MonthlyExpenseItem" OnValidSubmit="@Confirm">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                
+                        <div class="form-group">
+                            <label>
+                                Name:
+                                <InputText @bind-Value="MonthlyExpenseItem!.Name" class="form-control"/>
+                            </label>
+                            <label>
+                                Amount:
+                                <InputNumber @bind-Value="MonthlyExpenseItem!.Amount" class="form-control"/>
+                            </label>
+                            <label>
+                                Notes:
+                                <InputText @bind-Value="MonthlyExpenseItem!.Notes" class="form-control"/>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </EditForm>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" @onclick="Cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<button type="button" class="btn btn-primary" @onclick="() => _show = true">Edit</button>
+
+
+@code {
+    [Parameter]
+    public MonthlyExpense MonthlyExpenseItem { get; set; }
+    
+    [Parameter]
+    public EventCallback RefreshPage { get; set; }
+    
+    private bool _show = false;
+    
+    private async Task Confirm()
+    {
+        App.MonthlyExpenseRepo.UpdateMonthlyExpense(MonthlyExpenseItem);
+        _show = false;
+        await RefreshPage.InvokeAsync();
+    }
+
+    private async Task Cancel()
+    {
+        _show = false;
+        await RefreshPage.InvokeAsync();
+    }
+}

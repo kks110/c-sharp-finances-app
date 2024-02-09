@@ -1,0 +1,70 @@
+﻿@using Finances.Models
+
+@if (_show)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Expense</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Cancel" />
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@MonthlyExpenseModel" OnValidSubmit="@Confirm">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="form-group">
+                            <label>
+                                Name:
+                                <InputText @bind-Value="MonthlyExpenseModel!.Name" class="form-control"/>
+                            </label>
+                            <label>
+                                Amount:
+                                <InputNumber @bind-Value="MonthlyExpenseModel!.Amount" class="form-control"/>
+                            </label>
+                            <label>
+                                Notes:
+                                <InputText @bind-Value="MonthlyExpenseModel!.Notes" class="form-control"/>
+                            </label>
+                        </div>
+                        <br/>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </EditForm>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" @onclick="Cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div> 
+}
+<button type="button" class="btn btn-primary" @onclick="() => _show = true">Add Expense</button>
+
+
+@code {
+    [Parameter]
+    public EventCallback RefreshPage { get; set; }
+    
+    private bool _show = false;
+    
+    public MonthlyExpense? MonthlyExpenseModel { get; set; }
+    
+    protected override void OnInitialized() => MonthlyExpenseModel ??= new();
+    
+    private async Task Confirm()
+    {
+        App.MonthlyExpenseRepo.AddNewMonthlyExpense(MonthlyExpenseModel.Name, MonthlyExpenseModel.Amount, MonthlyExpenseModel.Notes);
+        _show = false;
+        await RefreshPage.InvokeAsync();
+
+    }
+
+    private void Cancel()
+    {
+        MonthlyExpenseModel.Name = "";
+        MonthlyExpenseModel.Amount = 0;
+        MonthlyExpenseModel.Notes = "";
+        _show = false;
+    }
+}

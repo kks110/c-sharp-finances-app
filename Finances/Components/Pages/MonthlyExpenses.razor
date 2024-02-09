@@ -1,0 +1,85 @@
+﻿@page "/monthly-expenses"
+@inject IJSRuntime JSRuntime
+
+@using Finances.Models
+<h1>Monthly Expenses</h1>
+
+
+<AddMonthlyExpense 
+    RefreshPage="Refresh"
+/> 
+
+
+
+@if (AllMonthlyExpenses().Count > 0)
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Amount</th>
+            <th>Notes</th>
+            <th />
+            <th />
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var expense in AllMonthlyExpenses())
+        {
+            <tr>
+                <td>@expense.Name</td>
+                <td>£@expense.Amount</td>
+                <td>@expense.Notes</td>
+                <td>
+                    <EditMonthlyExpense 
+                        TItem="MonthlyExpense"
+                        MonthlyExpenseItem="@expense" 
+                        RefreshPage="Refresh" 
+                    />
+                </td>
+                <td>
+                    <DeleteConfirmation  
+                        TItem="MonthlyExpense"
+                        MonthlyExpenseItem="@expense"
+                        RefreshPage="Refresh"
+                    />
+                </td>
+            </tr>
+        }
+        <tr class="table-danger">
+            <th>Total:</th>
+            <th>£@TotalMonthlyExpenses()</th>
+            <th />
+            <th />
+            <th />
+        </tr>
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    [SupplyParameterFromForm]
+    public MonthlyExpense? MonthlyExpenseModel { get; set; }
+    
+    protected override void OnInitialized() => MonthlyExpenseModel ??= new();
+    
+    private bool showEditForm = false;
+
+    private List<MonthlyExpense> AllMonthlyExpenses()
+    {
+        return App.MonthlyExpenseRepo.GetAllMonthlyExpense();
+    }
+    
+    private int TotalMonthlyExpenses()
+    {
+        return AllMonthlyExpenses().Sum(expense => expense.Amount);
+    }
+    
+
+    private async Task Refresh()
+    {
+        StateHasChanged();
+    }
+}
