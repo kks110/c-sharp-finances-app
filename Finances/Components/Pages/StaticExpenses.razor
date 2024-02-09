@@ -38,8 +38,9 @@
                 <td>
                     <DeleteConfirmation  
                         TItem="Expense"
-                        ExpenseItem="@expense"
-                        RefreshPage="Refresh"
+                        Item="@expense"
+                        ItemDeletion="deleteExpense"
+                        Message="@deleteMessage(expense)"
                     />
                 </td>
             </tr>
@@ -79,5 +80,16 @@
     private async Task Refresh()
     {
         StateHasChanged();
+    }
+    
+    private void deleteExpense(Expense expense)
+    {
+        App.ExpenseRepo.DeleteExpense(expense.Id);
+    }
+    
+    private string deleteMessage(Expense expense)
+    {
+        string weeklyExtra = expense.Weekly ? "(£" + expense.Amount + " per week)" : "";
+        return $"{expense.Name}: £{expense.CalculateMonthlyAmount()} {weeklyExtra}";
     }
 }

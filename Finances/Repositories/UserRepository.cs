@@ -3,7 +3,7 @@ using SQLite;
 
 namespace Finances.Repositories;
 
-public class ExpenseRepository
+public class UserRepository
 {
     string _dbPath;
 
@@ -17,15 +17,15 @@ public class ExpenseRepository
             return;
 
         conn = new SQLiteConnection(_dbPath);
-        conn.CreateTable<Expense>();
+        conn.CreateTable<User>();
     }
 
-    public ExpenseRepository(string dbPath)
+    public UserRepository(string dbPath)
     {
         _dbPath = dbPath;                        
     }
 
-    public int AddNewExpense(string name, int amount, string? notes, bool weekly = false, bool variable = false)
+    public int AddNewUser(string name, int monthlySalary)
     {            
         int result = 0;
         try
@@ -37,17 +37,14 @@ public class ExpenseRepository
                 throw new Exception("Valid name required");
             
             // basic validation to ensure an amount was entered
-            if (int.IsPositive(amount) == false)
+            if (int.IsPositive(monthlySalary) == false)
                 throw new Exception("Valid amount required");
 
             result = conn.Insert(
-                new Expense
+                new User
                 {
                     Name = name, 
-                    Amount = amount, 
-                    Notes = notes, 
-                    Weekly = weekly,
-                    Variable = variable
+                    MonthlySalary = monthlySalary, 
                 }
             );
 
@@ -62,65 +59,27 @@ public class ExpenseRepository
 
     }
 
-    public List<Expense> GetAllExpenses()
+    public List<User> GetAllUsers()
     {
         try
         {
             Init();
-            return conn.Table<Expense>().ToList();
+            return conn.Table<User>().ToList();
         }
         catch (Exception ex)
         {
             StatusMessage = string.Format("Failed to retrieve data. {0}", ex.Message);
         }
 
-        return new List<Expense>();
+        return new List<User>();
     }
 
-    public List<Expense> GetAllStaticExpenses()
-    {
-        try
-        {
-            Init();
-            var expenses = (
-                from Exp in conn.Table<Expense>()
-                where Exp.Variable == false
-                select Exp).ToList();
-            return expenses;
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = string.Format("Failed to retrieve data. {0}", ex.Message);
-        }
-
-        return new List<Expense>();
-    }
-    
-    
-    public Expense FindExpenseById(int id)
-    {
-        try
-        {
-            Init();
-            var expense = from monExp in conn.Table<Expense>()
-                                 where monExp.Id == id
-                                 select monExp;
-            return expense.FirstOrDefault();
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = string.Format("Failed to retrieve data. {0}", ex.Message);
-        }
-
-        return new Expense();
-    }
-
-    public int UpdateExpense(Expense expense)
+    public int UpdateUser(User user)
     {
         int result = 0;
         try
         {
-            result = conn.Update(expense);
+            result = conn.Update(user);
             return result;
         }
         catch (Exception ex)
@@ -131,12 +90,12 @@ public class ExpenseRepository
         return result;
     }
     
-    public int DeleteExpense(int id)
+    public int DeleteUser(int id)
     {
         int result = 0;
         try
         {
-            result = conn.Delete<Expense>(id);
+            result = conn.Delete<User>(id);
             return result;
         }
         catch (Exception ex)

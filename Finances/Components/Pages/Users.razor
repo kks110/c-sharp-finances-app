@@ -1,0 +1,92 @@
+﻿@page "/users"
+
+@using Finances.Models
+<h1>Users</h1>
+
+<AddUser 
+    RefreshPage="Refresh"
+/> 
+
+@if (AllUsers().Count > 0)
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Monthly Salary</th>
+            <th />
+            <th />
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var user in AllUsers())
+        {
+            <tr>
+                <td>@user.Name</td>
+                <td>£@user.MonthlySalary</td>
+                <td>
+                    <EditUser
+                        TItem="User"
+                        UserItem="@user"
+                        RefreshPage="Refresh"
+                    />
+                </td>
+                <td>
+                    <DeleteConfirmation  
+                        TItem="User"
+                        Item="@user"
+                        ItemDeletion="deleteUser"
+                        Message="@deleteMessage(user)"
+                    />
+                </td>
+            </tr>
+        }
+        <tr class="table-success">
+            <th>Total:</th>
+            <th>£@TotalSalary()</th>
+            <th />
+            <th />
+            <th />
+        </tr>
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    [SupplyParameterFromForm]
+    private Expense? ExpenseModel { get; set; }
+    
+    protected override void OnInitialized() => ExpenseModel ??= new();
+    
+    private bool showEditForm = false;
+
+    private List<User> AllUsers()
+    {
+        List<User> users = App.UserRepo.GetAllUsers();
+        return users.OrderByDescending(user => user.MonthlySalary).ToList();
+    }
+    
+    
+    private int TotalSalary()
+    {
+        return AllUsers().Sum(user => user.MonthlySalary);
+    }
+    
+    private void deleteUser(User user)
+    {
+        App.UserRepo.DeleteUser(user.Id);
+    }
+    
+    private string deleteMessage(User user)
+    {
+        return $"{user.Name}: £{user.MonthlySalary}";
+    }
+    
+
+    private async Task Refresh()
+    {
+        StateHasChanged();
+    }
+}

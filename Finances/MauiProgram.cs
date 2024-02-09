@@ -17,7 +17,9 @@ public static class MauiProgram
 
         string dbPath = FileSystem.AppDataDirectory;
         dbPath = Path.Combine(dbPath + "finances.db3");
+        
         builder.Services.AddSingleton<ExpenseRepository>(s => ActivatorUtilities.CreateInstance<ExpenseRepository>(s, dbPath));
+        builder.Services.AddSingleton<UserRepository>(s => ActivatorUtilities.CreateInstance<UserRepository>(s, dbPath));
         
         builder.Services.AddMauiBlazorWebView();
 

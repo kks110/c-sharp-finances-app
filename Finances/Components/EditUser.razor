@@ -1,0 +1,64 @@
+﻿@using Finances.Models
+@typeparam TItem
+
+@if (_show)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit User</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Cancel" />
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@UserItem" OnValidSubmit="@Confirm">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                
+                        <div class="form-group">
+                            <div class="mb-3">
+                                <label class="form-label">Name:</label>
+                                <InputText @bind-Value="UserItem!.Name" class="form-control"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Monthly Salary:</label>
+                                <InputNumber @bind-Value="UserItem!.MonthlySalary" class="form-control"/>
+                            </div>
+                        </div>
+                        <br/>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </EditForm>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" @onclick="Cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<button type="button" class="btn btn-primary" @onclick="() => _show = true">Edit</button>
+
+
+@code {
+    [Parameter]
+    public User UserItem { get; set; }
+    
+    [Parameter]
+    public EventCallback RefreshPage { get; set; }
+    
+    private bool _show = false;
+    
+    private async Task Confirm()
+    {
+        App.UserRepo.UpdateUser(UserItem);
+        _show = false;
+        await RefreshPage.InvokeAsync();
+    }
+
+    private async Task Cancel()
+    {
+        _show = false;
+        await RefreshPage.InvokeAsync();
+    }
+}

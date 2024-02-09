@@ -1,0 +1,75 @@
+﻿@using Finances.Models
+
+@if (_show)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add User</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Cancel" />
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@UserItem" OnValidSubmit="@Confirm">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="form-group">
+                            <div class="mb-3">
+                                <label class="form-label">Name:</label>
+                                <InputText @bind-Value="UserItem!.Name" class="form-control"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Amount:</label>
+                                <InputNumber @bind-Value="UserItem!.MonthlySalary" class="form-control"/>
+                            </div>
+                        </div>
+                        <br/>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </EditForm>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" @onclick="Cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div> 
+}
+<button type="button" class="btn btn-primary" @onclick="() => _show = true">Add User</button>
+
+
+@code {
+    [Parameter]
+    public EventCallback RefreshPage { get; set; }
+    
+    private bool _show = false;
+    
+    public User? UserItem { get; set; }
+    
+    protected override void OnInitialized() => UserItem ??= new();
+    
+    private async Task Confirm()
+    {
+        App.UserRepo.AddNewUser(
+            UserItem.Name, 
+            UserItem.MonthlySalary
+        );
+        ResetModel();
+        _show = false;
+        await RefreshPage.InvokeAsync();
+
+    }
+
+    private void Cancel()
+    {
+        ResetModel();
+        _show = false;
+    }
+
+    private void ResetModel()
+    {
+        UserItem.Name = "";
+        UserItem.MonthlySalary = 0;
+    }
+}

@@ -5,13 +5,15 @@ namespace Finances;
 public partial class App : Application
 {
     public static ExpenseRepository ExpenseRepo { get; private set; }
+    public static UserRepository UserRepo { get; private set; }
     
-    public App(ExpenseRepository repo)
+    public App(ExpenseRepository expenseRepo, UserRepository userRepo)
     {
         InitializeComponent();
 
         MainPage = new MainPage();
         
-        ExpenseRepo = repo;
+        ExpenseRepo = expenseRepo;
+        UserRepo = userRepo;
     }
 }
