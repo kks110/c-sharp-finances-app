@@ -55,8 +55,8 @@
                 <DeleteConfirmation  
                    TItem="Expense"
                    Item="@expense"
-                   ItemDeletion="deleteExpense"
-                   Message="@deleteMessage(expense)"
+                   ItemDeletion="DeleteExpense"
+                   Message="@DeleteMessage(expense)"
                 /> 
             </span>
         </li>
@@ -158,12 +158,12 @@
         StateHasChanged();
     }
     
-    private void deleteExpense(Expense expense)
+    private void DeleteExpense(Expense expense)
     {
         App.ExpenseRepo.DeleteExpense(expense.Id);
     }
     
-    private string deleteMessage(Expense expense)
+    private string DeleteMessage(Expense expense)
     {
         string weeklyExtra = expense.Weekly ? "(£" + expense.Amount + " per week)" : "";
         return $"{expense.Name}: £{expense.CalculateMonthlyAmount()} {weeklyExtra}";
